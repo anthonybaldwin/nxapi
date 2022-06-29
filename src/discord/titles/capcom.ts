@@ -2,9 +2,9 @@ import { Title } from '../util.js';
 
 export const titles: Title[] = [
     {
-        // Monster Hunter Rise
+        // MONSTER HUNTER RISE
         id: '0100b04011742000',
-        client: '986683336053370900',
+        client: '990772733937864764',
         showPlayingOnline: true,
         showActiveEvent: true,
     },
@@ -17,9 +17,9 @@ export const titles: Title[] = [
     },
 
     {
-        // Monster Hunter Rise Demo
+        // MONSTER HUNTER RISE DEMO
         id: '010093a01305c000',
-        client: '986683336053370900',
+        client: '991533384981557379',
         largeImageText: 'Demo',
         showPlayingOnline: true,
         showActiveEvent: true,
@@ -34,9 +34,9 @@ export const titles: Title[] = [
     },
 
     {
-        // Monster Hunter Rise: Sunbreak Demo
+        // MONSTER HUNTER RISE: SUNBREAK DEMO
         id: '0100db001724e000',
-        client: '986683336053370900',
+        client: '990772557894529044',
         largeImageText: 'Sunbreak Demo',
         showPlayingOnline: true,
         showActiveEvent: true,

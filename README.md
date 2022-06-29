@@ -172,6 +172,9 @@ nxapi nso presence --friend-code -
 
 # Show a custom friend code in Discord
 # Use this if you are showing presence of a friend of the authenticated user
+## TODO:
+## - Add this to gui for Discord RPC via friend flow? Assume in the dialog if logged-in w/ both accounts, otherwise allow text or blank?
+## - Would be nice if image showed even if SW- isn't set; also look into...
 nxapi nso presence --friend-code 0000-0000-0000
 nxapi nso presence --friend-code SW-0000-0000-0000
 

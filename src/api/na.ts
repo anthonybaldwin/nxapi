@@ -73,7 +73,7 @@ export async function getNintendoAccountUser(token: NintendoAccountToken) {
     const [signal, cancel] = timeoutSignal();
     const response = await fetch('https://api.accounts.nintendo.com/2.0.0/users/me', {
         headers: {
-            'Accept-Language': 'en-GB',
+            'Accept-Language': Intl.DateTimeFormat().resolvedOptions().locale,
             'User-Agent': 'NASDKAPI; Android',
             'Content-Type': 'application/json',
             'Accept': 'application/json',

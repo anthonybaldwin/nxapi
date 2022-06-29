@@ -52,8 +52,8 @@ export async function handler(argv: ArgumentsCamelCase<Arguments>) {
         table.push([
             season.id,
             season.key,
-            season.start.toLocaleString('en-GB'),
-            season.end.toLocaleString('en-GB'),
+            season.start.toLocaleString(),
+            season.end.toLocaleString(),
             season.complete ? 'Complete' : 'Calculating',
         ]);
     }
