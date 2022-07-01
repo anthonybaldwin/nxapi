@@ -1,4 +1,5 @@
 import { app, dialog, Menu, Tray, nativeImage, MenuItem } from './electron.js';
+import path from 'node:path';
 import createDebug from 'debug';
 import { askAddNsoAccount, askAddPctlAccount } from './na-auth.js';
 import { App } from './index.js';
@@ -6,7 +7,7 @@ import { WebService } from '../../api/coral-types.js';
 import openWebService from './webservices.js';
 import { SavedToken } from '../../common/auth/nso.js';
 import { SavedMoonToken } from '../../common/auth/moon.js';
-import { dev } from '../../util/product.js';
+import { dev, dir } from '../../util/product.js';
 import { EmbeddedPresenceMonitor, EmbeddedProxyPresenceMonitor } from './monitor.js';
 
 const debug = createDebug('app:main:menu');
@@ -15,11 +16,13 @@ export default class MenuApp {
     tray: Tray;
 
     constructor(readonly app: App) {
-        const icon = nativeImage.createEmpty();
+        const icon = nativeImage
+            .createFromPath(path.join(dir, 'resources', 'app', 'menu-icon.png'))
+            .resize({height: 16});
+
+        icon.setTemplateImage(true);
 
         this.tray = new Tray(icon);
-
-        this.tray.setTitle('nxapi');
         this.tray.setToolTip('nxapi');
 
         app.store.on('update-nintendo-accounts', () => this.updateMenu());
