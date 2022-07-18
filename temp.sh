@@ -8,5 +8,5 @@ npx rollup --config
 node bin/nxapi.js util validate-discord-titles
 PACKAGE=`npm --color="always" pack`
 mv "$PACKAGE" nxapi.tgz
-npx electron-builder build --windows --publish never
-mv dist/app/package 
+npx electron-builder build --win nsis --publish never
+mv dist/app/package/* app
