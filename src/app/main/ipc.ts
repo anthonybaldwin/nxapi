@@ -151,7 +151,7 @@ export function setupIpc(appinstance: App, ipcMain: IpcMain) {
         new MenuItem({label: 'Copy', click: () => clipboard.writeText('SW-' + fc.id)}),
         new MenuItem({type: 'separator'}),
         new MenuItem({label: fc.regenerable ? 'Regenerate using a Nintendo Switch console' :
-            'Can be regenerated at ' + new Date(fc.regenerableAt * 1000).toLocaleString('en-GB'), enabled: false}),
+            'Can be regenerated at ' + new Date(fc.regenerableAt * 1000).toLocaleString(), enabled: false}),
     ]).popup({window: BrowserWindow.fromWebContents(e.sender)!}), undefined));
     ipcMain.handle('nxapi:menu:friend', (e, user: NintendoAccountUser, nso: CurrentUser, friend: Friend) =>
         (buildFriendMenu(appinstance, user, nso, friend)
@@ -248,24 +248,24 @@ function buildFriendMenu(app: App, user: NintendoAccountUser, nso: CurrentUser, 
                 ...(friend.presence.game.sysDescription ? [
                     new MenuItem({label: friend.presence.game.sysDescription, enabled: false}),
                 ] : []),
-                new MenuItem({label: 'First played: ' + new Date(friend.presence.game.firstPlayedAt * 1000).toLocaleString('en-GB'), enabled: false}),
+                new MenuItem({label: 'First played: ' + new Date(friend.presence.game.firstPlayedAt * 1000).toLocaleString(), enabled: false}),
                 new MenuItem({label: 'Play time: ' + hrduration(friend.presence.game.totalPlayTime), enabled: false}),
             ] : []),
-            new MenuItem({label: 'Updated: ' + new Date(friend.presence.updatedAt * 1000).toLocaleString('en-GB'), enabled: false}),
+            new MenuItem({label: 'Updated: ' + new Date(friend.presence.updatedAt * 1000).toLocaleString(), enabled: false}),
             new MenuItem({type: 'separator'}),
         ] : friend.presence.state === PresenceState.INACTIVE ? [
             new MenuItem({label: 'Offline (console online)', enabled: false}),
             ...(friend.presence.logoutAt ? [
-                new MenuItem({label: 'Logout time: ' + new Date(friend.presence.logoutAt * 1000).toLocaleString('en-GB'), enabled: false}),
+                new MenuItem({label: 'Logout time: ' + new Date(friend.presence.logoutAt * 1000).toLocaleString(), enabled: false}),
             ] : []),
-            new MenuItem({label: 'Updated: ' + new Date(friend.presence.updatedAt * 1000).toLocaleString('en-GB'), enabled: false}),
+            new MenuItem({label: 'Updated: ' + new Date(friend.presence.updatedAt * 1000).toLocaleString(), enabled: false}),
             new MenuItem({type: 'separator'}),
         ] : [
             new MenuItem({label: 'Offline', enabled: false}),
             ...(friend.presence.logoutAt ? [
-                new MenuItem({label: 'Logout time: ' + new Date(friend.presence.logoutAt * 1000).toLocaleString('en-GB'), enabled: false}),
+                new MenuItem({label: 'Logout time: ' + new Date(friend.presence.logoutAt * 1000).toLocaleString(), enabled: false}),
             ] : []),
-            new MenuItem({label: 'Updated: ' + new Date(friend.presence.updatedAt * 1000).toLocaleString('en-GB'), enabled: false}),
+            new MenuItem({label: 'Updated: ' + new Date(friend.presence.updatedAt * 1000).toLocaleString(), enabled: false}),
             new MenuItem({type: 'separator'}),
         ]),
         new MenuItem({label: 'Enable Discord Presence', type: 'checkbox', checked: discord_presence_active, click: () =>

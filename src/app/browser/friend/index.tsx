@@ -84,8 +84,8 @@ export default function Friend(props: FriendProps) {
                         Coral user ID: <Text style={styles.friendCoralIdValue}>{friend.id}</Text>
                     </> : 'Never used Nintendo Switch Online app'}</Text>
 
-                    <Text style={[styles.friendCreatedAt, theme.text]}>Friends since {new Date(friend.friendCreatedAt * 1000).toLocaleString('en-GB')}</Text>
-                    {friend.presence.updatedAt ? <Text style={[styles.presenceUpdatedAt, theme.text]}>Presence updated at {new Date(friend.presence.updatedAt * 1000).toLocaleString('en-GB')}</Text> : null}
+                    <Text style={[styles.friendCreatedAt, theme.text]}>Friends since {new Date(friend.friendCreatedAt * 1000).toLocaleString()}</Text>
+                    {friend.presence.updatedAt ? <Text style={[styles.presenceUpdatedAt, theme.text]}>Presence updated at {new Date(friend.presence.updatedAt * 1000).toLocaleString()}</Text> : null}
                     <Text style={[styles.canSeeUserPresence, theme.text]}>This user {can_see_user_presence ? 'can' : 'can not'} see your presence.</Text>
                 </View>
 
@@ -128,7 +128,7 @@ function FriendPresence(props: {
 
     return <View>
         <Text style={[styles.presenceText, styles.presenceTextOffline, theme.text]}>Offline</Text>
-        {logout ? <Text style={[styles.presenceText, styles.presenceTextOffline, theme.text]}>Last seen {logout.toLocaleString('en-GB')}</Text> : null}
+        {logout ? <Text style={[styles.presenceText, styles.presenceTextOffline, theme.text]}>Last seen {logout.toLocaleString()}</Text> : null}
     </View>;
 }
 
@@ -152,7 +152,7 @@ function FriendPresenceGame(props: {
             <Text style={[styles.gameName, theme.text]}>{props.game.name}</Text>
             {props.game.sysDescription ? <Text style={[styles.gameActivity, theme.text]}>{props.game.sysDescription}</Text> : null}
             <Text style={[styles.gameTotalPlayTime, theme.text]}>Played for {hrduration(props.game.totalPlayTime)}</Text>
-            <Text style={[styles.gameFirstPlayed, theme.text]}>First played {first_played?.toLocaleString('en-GB') ?? 'now'}</Text>
+            <Text style={[styles.gameFirstPlayed, theme.text]}>First played {first_played?.toLocaleString() ?? 'now'}</Text>
             {titleid ? <Text style={[styles.gameTitleId, theme.text]}>Title ID: <Text style={styles.gameTitleIdValue}>{titleid}</Text></Text> : null}
 
             <View style={styles.gameShopButton}>

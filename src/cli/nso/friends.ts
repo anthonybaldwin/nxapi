@@ -77,7 +77,7 @@ export async function handler(argv: ArgumentsCamelCase<Arguments>) {
                 'name' in friend.presence.game ?
                     'Playing ' + friend.presence.game.name + ';\nplayed for ' +
                         hrduration(friend.presence.game.totalPlayTime) + ' since ' +
-                        new Date(friend.presence.game.firstPlayedAt * 1000).toLocaleDateString('en-GB') :
+                        new Date(friend.presence.game.firstPlayedAt * 1000).toLocaleDateString() :
                     'Online' :
                 friend.presence.state === PresenceState.INACTIVE ?
                     'Console online' + (friend.presence.logoutAt ?

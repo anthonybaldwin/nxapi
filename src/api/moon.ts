@@ -31,9 +31,9 @@ export default class MoonApi {
                 'X-Moon-Os': 'ANDROID',
                 'X-Moon-Os-Version': '26',
                 'X-Moon-Model': '',
-                'X-Moon-TimeZone': 'Europe/London',
-                'X-Moon-Os-Language': 'en-GB',
-                'X-Moon-App-Language': 'en-GB',
+                'X-Moon-TimeZone': Intl.DateTimeFormat().resolvedOptions().timeZone,
+                'X-Moon-Os-Language': Intl.DateTimeFormat().resolvedOptions().locale,
+                'X-Moon-App-Language': Intl.DateTimeFormat().resolvedOptions().locale,
                 'X-Moon-App-Display-Version': ZNMA_VERSION,
                 'X-Moon-App-Internal-Version': ZNMA_BUILD,
                 'User-Agent': 'moon_ANDROID/' + ZNMA_VERSION + ' (com.nintendo.znma; build:' + ZNMA_BUILD +

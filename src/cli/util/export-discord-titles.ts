@@ -178,7 +178,7 @@ function getTitlesCsv(exclude_discord_configuration = false) {
 
     const header = exclude_discord_configuration ?
         'titleid,discordclientid\n' :
-        'titleid,discordclientid,titlenamesuffix,largeimagekey,largeimagetext,smallimagekey,smallimagetext\n';
+        'titleid,discordclientid,titlenamesuffix,locale,largeimagekey,largeimagetext,smallimagekey,smallimagetext\n';
     let csv = header;
 
     for (const title of titles) {
@@ -189,6 +189,7 @@ function getTitlesCsv(exclude_discord_configuration = false) {
             title.id + ',' +
             title.client + ',' +
             (title.titleName ? JSON.stringify(title.titleName) : '') + ',' +
+            (title.locale ? JSON.stringify(title.locale) : '') + ',' +
             (title.largeImageKey ? JSON.stringify(title.largeImageKey) : '') + ',' +
             (title.largeImageText ? JSON.stringify(title.largeImageText) : '') + ',' +
             (title.smallImageKey ? JSON.stringify(title.smallImageKey) : '') + ',' +
