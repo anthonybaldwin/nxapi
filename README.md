@@ -1,7 +1,9 @@
 nxapi
 ===
 
-Access the Nintendo Switch Online and Nintendo Switch Parental Controls app APIs. Includes Discord Rich Presence, friend notifications and data downloads.
+JavaScript library and command line and Electron app for accessing the Nintendo Switch Online and Nintendo Switch Parental Controls app APIs. Show your Nintendo Switch presence in Discord, get friend notifications on desktop, and download and access SplatNet 2, NookLink and Parental Controls data.
+
+[![Discord](https://img.shields.io/discord/998657768594608138?color=5865f2&label=Discord)](https://discord.com/invite/4D82rFkXRv)
 
 ### Features
 
@@ -37,7 +39,7 @@ Access the Nintendo Switch Online and Nintendo Switch Parental Controls app APIs
 - Download island newspapers from and send messages and reactions using NookLink
 - Download all Nintendo Switch Parental Controls usage records
 
-The API library and types are exported for use in JavaScript/TypeScript software. The app/commands properly cache access tokens and try to handle requests to appear as Nintendo's apps - if using nxapi as a library you will need to handle this yourself.
+The API library and types are exported for use in JavaScript/TypeScript software. The app/commands properly cache access tokens and try to handle requests to appear as Nintendo's apps - if using nxapi as a library you will need to handle this yourself. [More information.](#usage-as-a-typescriptjavascript-library)
 
 #### Electron app
 
@@ -94,13 +96,15 @@ For Discord Rich Presence, you can create an additional account, add your main a
 
 #### Why is a token sent to one/two different non-Nintendo servers?
 
-It's required to generate some data to make Nintendo think you're using the real Nintendo Switch Online app. (This isn't required for Parental Controls data.) See the splatnet2statink and flapg section below for more information.
+It's required to generate some data to make Nintendo think you're using the real Nintendo Switch Online app, as currently it's too hard to do this locally. (This isn't required for Parental Controls data.) See the splatnet2statink and flapg section below for more information.
 
-Currently it's too hard to do this locally. nxapi includes a service to do this using a rooted Android device/emulator. Hopefully at some point this will become easier.
+#### I need help using nxapi or Nintendo's APIs/I want to share something I've made using nxapi or Nintendo's APIs
 
-This is really annoying. Initially the Nintendo Switch Online app didn't perform any sort of client attestation at all, then Nintendo added a HMAC of the id_token, timestamp and request ID to app/web service login requests, using a secret key embedded in the app, which was soon discovered. Nintendo later updated the app to use a native library (`libvoip`, which is also used for the app's VoIP features) to do this, and still no one knows how it works. (To make things even more confusing, the function, `genAudioH`/`genAudioH2`, always returns a different result, even when given the same inputs.)
+I've created a Discord server for this project. Anyone interested in Nintendo's smart device app APIs is welcome to join, even if you're not interested in this project.
 
-The reason Nintendo added this is probably to try and stop people automating access to their app's API. I really hope that's wrong though, as then Nintendo would be prioritising that over account security, as most people seem ok with sharing account credentials to access the API. (And it's not stopping anyone accessing the API outside of the app anyway.)
+If you are creating something using Nintendo's smart device APIs: updates to Nintendo's apps are published in [#nintendo-app-versions](https://discord.com/channels/998657768594608138/998659415462916166).
+
+Invitation: https://discord.com/invite/4D82rFkXRv
 
 ### Install
 
@@ -324,6 +328,12 @@ Alternatively the [imink API](https://github.com/JoneWang/imink/wiki/imink-API-D
 nxapi also includes a custom server using Frida on an Android device/emulator that can be used instead of these.
 
 This is only required for Nintendo Switch Online app data. Nintendo Switch Parental Controls data can be fetched without sending an access token to a third-party API.
+
+This is really annoying. Initially the Nintendo Switch Online app didn't perform any sort of client attestation at all, then Nintendo added a HMAC of the id_token, timestamp and request ID to app/web service login requests, using a secret key embedded in the app, which was soon discovered. Nintendo later updated the app to use a native library (`libvoip`, which is also used for the app's VoIP features) to do this, and still no one knows how it works. (To make things even more confusing, the function, `genAudioH`/`genAudioH2`, always returns a different result, even when given the same inputs.)
+
+The reason Nintendo added this is probably to try and stop people automating access to their app's API. I really hope that's wrong though, as then Nintendo would be prioritising that over account security, as most people seem ok with sharing account credentials to access the API. (And it's not stopping anyone accessing the API outside of the app anyway.)
+
+[**See #10 if you can help with this.**](https://github.com/samuelthomas2774/nxapi/discussions/10)
 
 ### SplatNet 2
 
@@ -657,7 +667,7 @@ NXAPI_DATA_PATH=`pwd`/data nxapi ...
 
 #### Debug logs
 
-Logging uses the `debug` package and can be controlled using the `DEBUG` environment variable. All nxapi logging uses the `nxapi` and `cli` namespaces.
+Logging uses the `debug` package and can be controlled using the `DEBUG` environment variable. All nxapi logging uses the `nxapi`, `cli` and `app` namespaces.
 
 ```sh
 # Show all debug logs from nxapi
@@ -711,6 +721,92 @@ ZNCA_API_URL=http://[::1]:12345/api/znca nxapi nso ...
 Some options can be set using environment variables. These can be stored in a `.env` file in the data location. Environment variables will be read from the `.env` file in the default location, then the `.env` file in `NXAPI_DATA_PATH` location. `.env` files will not be read from the location set in the `--data-path` option.
 
 This can be used with the Electron app (including when using the packaged version).
+
+#### User agent strings
+
+As nxapi can be used in scripts or as a library, it exposes a few different methods for setting a user agent string for requests to the splatnet2statink, flapg, imink and other non-Nintendo APIs. You must include the name and version number of your script/program in the user agent. If your program is not open source or not easily discoverable (e.g. by searching GitHub) it must also include contact information.
+
+When using the nxapi command in a script or other program, the `NXAPI_USER_AGENT` environment variable should be used. The `NXAPI_USER_AGENT` environment variable is only used by the nxapi command, and will be ignored by the Electron app or when using nxapi as a library.
+
+```sh
+NXAPI_USER_AGENT="your-script/1.0.0 (+https://github.com/...)" nxapi nso ...
+```
+
+When using nxapi as a TypeScript/JavaScript library, the `addUserAgent` function should be used.
+
+```ts
+import { addUserAgent } from 'nxapi';
+
+addUserAgent('your-script/1.0.0 (+https://github.com/...)');
+
+// This could also be read from a package.json file
+import { fileURLToPath } from 'node:url';
+import { resolve } from 'node:path';
+import { readFile } from 'node:fs/promises':
+const pkg = JSON.parse(await readFile(resolve(fileURLToPath(import.meta.url), '..', 'package.json'), 'utf-8'));
+addUserAgent(pkg.name + '/' + pkg.version + ' (+' + pkg.repository.url + ')');
+```
+
+#### Usage as a TypeScript/JavaScript library
+
+nxapi exports it's API library and types. [See src/exports.](src/exports)
+
+> You must set a user agent string using the `addUserAgent` function when using anything that contacts non-Nintendo APIs, such as the splatnet2statink API.
+
+> Please read https://github.com/frozenpandaman/splatnet2statink/wiki/api-docs if you intend to share anything you create.
+
+> nxapi uses native ECMAScript modules. nxapi also uses features like top-level await, so it cannot be converted to CommonJS using Rollup or similar. If you need to use nxapi from CommonJS modules or other module systems, use a [dynamic import](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/import).
+
+> If you need any help using nxapi as a library [join the Discord server](https://discord.com/invite/4D82rFkXRv) or [create a discussion](https://github.com/samuelthomas2774/nxapi/discussions/new).
+
+Example authenticating to the Nintendo Switch Online app:
+
+> This is a simplified example of authenticating to the Coral API and using cached tokens. More logic is required to ensure you are using these APIs properly - [see src/common/auth/nso.ts for the authentication functions used in nxapi's CLI and Electron app](src/common/auth/nso.ts).
+
+```ts
+import { addUserAgent } from 'nxapi';
+import CoralApi from 'nxapi/coral';
+
+addUserAgent('your-script/1.0.0 (+https://github.com/...)');
+
+declare function getCachedCoralToken(): [string, Date];
+declare function setCachedCoralToken(token: string, expires_at: Date): void;
+declare function getNintendoAccountSessionToken(): string;
+
+let coral;
+
+try {
+    const [token, expires_at] = getCachedCoralToken();
+    if (expires_at.getTime() > Date.now()) throw new Error('Token expired');
+
+    coral = new CoralApi(token);
+} catch (err) {
+    const na_session_token = getNintendoAccountSessionToken();
+    const {nso, data} = await CoralApi.createWithSessionToken(na_session_token);
+    setCachedCoralToken(data.credential.accessToken, Date.now() + (data.credential.expiresIn * 1000));
+    coral = nso;
+}
+
+const friends = await coral.getFriendList();
+```
+
+Example getting SplatNet 2 records:
+
+> This example does not include authenticating to SplatNet 2. To benefit from the caching in the nxapi command, the `nxapi splatnet2 token --json` command can be used in most scripts. For example:
+>
+> ```sh
+> # your-script.js can then read the iksm_session, unique player ID and region from `JSON.parse(process.env.SPLATNET_TOKEN)`
+> SPLATNET_TOKEN=`nxapi splatnet2 token --json` node your-script.js
+> ```
+
+```ts
+import SplatNet2Api from 'nxapi/splatnet2';
+
+const iksm_session = '...';
+const splatnet2 = new SplatNet2Api(iksm_session);
+
+const records = await splatnet2.getRecords();
+```
 
 ### Links
 

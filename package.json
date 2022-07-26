@@ -17,6 +17,13 @@
         "resources/common",
         "bin"
     ],
+    "exports": {
+        ".": "./dist/exports/index.js",
+        "./coral": "./dist/exports/coral.js",
+        "./moon": "./dist/exports/moon.js",
+        "./splatnet2": "./dist/exports/splatnet2.js",
+        "./nooklink": "./dist/exports/nooklink.js"
+    },
     "bin": {
         "nxapi": "bin/nxapi.js"
     },
@@ -94,7 +101,7 @@
         "asar": false,
         "extraMetadata": {
             "name": "nxapi-app",
-            "main": "dist/bundle/app-main-bundle.cjs",
+            "main": "dist/bundle/app-entry.cjs",
             "dependencies": {},
             "optionalDependencies": {},
             "devDependencies": {}

@@ -1080,7 +1080,7 @@ export const titles: Title[] = [
         showPlayingOnline: true,
         showActiveEvent: true,
     },
-
+    
     {
         // LIVE A LIVE
         id: '0100cf801776c000',
@@ -1088,13 +1088,20 @@ export const titles: Title[] = [
         showPlayingOnline: true,
         showActiveEvent: true,
     },
+
     {
-        // LIVE A LIVE: Demo Version
-        id: '0100a5f017e9e000',
-        client: '991357349195436202',
+        // Xenoblade Chronicles 3
+        id: '010074f013262000',
+        client: '967103709605658735',
         showPlayingOnline: true,
         showActiveEvent: true,
     },
 
-    //TODO: Google Sheet -> JSON API instead? Easy for anyone to update/suggest. Tabs work too.
+    {
+        // Splatoon 3
+        id: '0100c2500fc20000',
+        client: '967103796134158447',
+        showPlayingOnline: true,
+        showActiveEvent: true,
+    },
 ];
