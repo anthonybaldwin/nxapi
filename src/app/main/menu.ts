@@ -5,7 +5,7 @@ import { askAddNsoAccount, askAddPctlAccount } from './na-auth.js';
 import { App } from './index.js';
 import { WebService } from '../../api/coral-types.js';
 import openWebService from './webservices.js';
-import { SavedToken } from '../../common/auth/nso.js';
+import { SavedToken } from '../../common/auth/coral.js';
 import { SavedMoonToken } from '../../common/auth/moon.js';
 import { dev, dir } from '../../util/product.js';
 import { EmbeddedPresenceMonitor, EmbeddedProxyPresenceMonitor } from './monitor.js';
@@ -45,7 +45,7 @@ export default class MenuApp {
 
             const monitor = this.app.monitors.monitors.find(m => m instanceof EmbeddedPresenceMonitor &&
                 m.data.user.id === data.user.id);
-            const discord_presence_active = discord_presence_monitor instanceof EmbeddedPresenceMonitor && 
+            const discord_presence_active = discord_presence_monitor instanceof EmbeddedPresenceMonitor &&
                 discord_presence_monitor?.data?.user.id === data.user.id;
 
             const item = new MenuItem({

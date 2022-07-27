@@ -1,10 +1,10 @@
 import fetch, { Response } from 'node-fetch';
 import createDebug from 'debug';
-import { ActiveEvent, Announcements, CurrentUser, Event, Friend, Presence, PresencePermissions, User, WebService, WebServiceToken, CoralErrorResponse, CoralStatus, CoralSuccessResponse } from './coral-types.js';
+import { ActiveEvent, Announcements, CurrentUser, Event, Friend, Presence, PresencePermissions, User, WebService, WebServiceToken, CoralErrorResponse, CoralStatus, CoralSuccessResponse, FriendCodeUser, FriendCodeUrl } from './coral-types.js';
 import { ErrorResponse } from './util.js';
 import CoralApi from './coral.js';
 import { NintendoAccountUser } from './na.js';
-import { SavedToken } from '../common/auth/nso.js';
+import { SavedToken } from '../common/auth/coral.js';
 import { timeoutSignal } from '../util/misc.js';
 import { getAdditionalUserAgents, getUserAgent } from '../util/useragent.js';
 
@@ -97,9 +97,21 @@ export default class ZncProxyApi implements CoralApi {
         return {status: CoralStatus.OK as const, result: response.user, correlationId: ''};
     }
 
+    async getUserByFriendCode(friend_code: string, hash?: string): Promise<CoralSuccessResponse<FriendCodeUser>> {
+        throw new Error('Not supported in ZncProxyApi');
+    }
+
+    async sendFriendRequest(nsa_id: string): Promise<CoralSuccessResponse<{}>> {
+        throw new Error('Not supported in ZncProxyApi');
+    }
+
     async getCurrentUser() {
         const response = await this.fetch<{user: CurrentUser}>('/user');
         return {status: CoralStatus.OK as const, result: response.user, correlationId: ''};
+    }
+
+    async getFriendCodeUrl(): Promise<CoralSuccessResponse<FriendCodeUrl>> {
+        throw new Error('Not supported in ZncProxyApi');
     }
 
     async getCurrentUserPermissions() {

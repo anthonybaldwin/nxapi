@@ -52,7 +52,7 @@ export class App {
                 scrollBounce: false,
             },
         });
-        
+
         window.on('closed', () => this.main_window = null);
 
         return this.main_window = window;
@@ -175,7 +175,8 @@ export class Store extends EventEmitter {
     ) {
         super();
 
-        this.users = Users.coral(storage, process.env.ZNC_PROXY_URL);
+        // ratelimit = false, as most users.get calls are triggered by user interaction (or at startup)
+        this.users = Users.coral(storage, process.env.ZNC_PROXY_URL, false);
     }
 
     async saveMonitorState(monitors: PresenceMonitorManager) {

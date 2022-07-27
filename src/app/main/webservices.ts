@@ -10,7 +10,7 @@ import { dev } from '../../util/product.js';
 import { WebService } from '../../api/coral-types.js';
 import { Store } from './index.js';
 import type { NativeShareRequest, NativeShareUrlRequest } from '../preload-webservice/znca-js-api.js';
-import { SavedToken } from '../../common/auth/nso.js';
+import { SavedToken } from '../../common/auth/coral.js';
 import { createWebServiceWindow } from './windows.js';
 
 const debug = createDebug('app:main:webservices');
@@ -230,7 +230,7 @@ export class WebServiceIpc {
             na_country: user.country,
             na_lang: user.language,
         }).toString();
-    
+
         return {
             webservice,
             url: url.toString(),
@@ -337,5 +337,11 @@ export class WebServiceIpc {
 
         const key = 'WebServicePersistentData.' + nsoAccount.user.nsaId + '.' + webservice.id;
         await store.storage.setItem(key, data);
+    }
+
+    async completeLoading(event: IpcMainInvokeEvent): Promise<void> {
+        const {nsoAccount, webservice} = this.getWindowData(event.sender);
+
+        debug('Web service %s, user %s, called completeLoading', webservice.name, nsoAccount.user.name);
     }
 }

@@ -1,14 +1,13 @@
 import createDebug from 'debug';
-import Table from '../util/table.js';
 import type { Arguments as ParentArguments } from '../nso.js';
 import { ArgumentsCamelCase, Argv, YargsArguments } from '../../util/yargs.js';
 import { initStorage } from '../../util/storage.js';
 import { getToken } from '../../common/auth/coral.js';
 
-const debug = createDebug('cli:nso:announcements');
+const debug = createDebug('cli:nso:friendcode');
 
-export const command = 'announcements';
-export const desc = 'List Nintendo Switch Online app announcements';
+export const command = 'friendcode';
+export const desc = 'Get a friend code URL';
 
 export function builder(yargs: Argv<ParentArguments>) {
     return yargs.option('user', {
@@ -29,8 +28,6 @@ export function builder(yargs: Argv<ParentArguments>) {
 type Arguments = YargsArguments<ReturnType<typeof builder>>;
 
 export async function handler(argv: ArgumentsCamelCase<Arguments>) {
-    console.warn('Listing announcements');
-
     const storage = await initStorage(argv.dataPath);
 
     const usernsid = argv.user ?? await storage.getItem('SelectedUser');
@@ -43,34 +40,17 @@ export async function handler(argv: ArgumentsCamelCase<Arguments>) {
     const webservices = await nso.getWebServices();
     const activeevent = await nso.getActiveEvent();
 
+    const friendcodeurl = await nso.getFriendCodeUrl();
+
     if (argv.jsonPrettyPrint) {
-        console.log(JSON.stringify(announcements.result, null, 4));
+        console.log(JSON.stringify(friendcodeurl.result, null, 4));
         return;
     }
     if (argv.json) {
-        console.log(JSON.stringify(announcements.result));
+        console.log(JSON.stringify(friendcodeurl.result));
         return;
     }
 
-    const table = new Table({
-        head: [
-            'ID',
-            'Title',
-            'Priority',
-            'Date',
-            'Display end date',
-        ],
-    });
-
-    for (const announcement of announcements.result) {
-        table.push([
-            announcement.announcementId,
-            announcement.title.substr(0, 60),
-            announcement.priority,
-            new Date(announcement.distributionDate * 1000).toISOString(),
-            new Date(announcement.forceDisplayEndDate * 1000).toISOString(),
-        ]);
-    }
-
-    console.log(table.toString());
+    console.warn('Friend code', friendcodeurl.result);
+    console.log(friendcodeurl.result.url);
 }
