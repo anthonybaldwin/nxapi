@@ -116,26 +116,30 @@ export const titles: Title[] = [
     {
         // Nintendo Entertainment System - Nintendo Switch Online
         id: '0100d870045b6000',
-        client: '950907272438104064',
-        largeImageText: 'Nintendo Entertainment System',
+        client: '990740015611015259',
     },
     {
         // Super Nintendo Entertainment System - Nintendo Switch Online
         id: '01008d300c50c000',
-        client: '950907272438104064',
-        largeImageText: 'Super Nintendo Entertainment System',
+        client: '990739801927974953',
     },
     {
         // Nintendo 64 - Nintendo Switch Online
         id: '0100c9a00ece6000',
-        client: '950907272438104064',
-        largeImageText: 'Nintendo 64',
+        client: '990740776516464640',
     },
     {
         // SEGA Mega Drive - Nintendo Switch Online
         id: '0100b3c014bda000',
         client: '950907272438104064',
         largeImageText: 'SEGA Mega Drive',
+        locale: 'en-GB',
+    },
+    {
+        // SEGA Genesis - Nintendo Switch Online
+        id: '0100b3c014bda000',
+        client: '950907272438104064',
+        locale: 'en-US',
     },
 
     {
@@ -231,6 +235,13 @@ export const titles: Title[] = [
         showActiveEvent: true,
     },
 
+    {
+        // Xenoblade Chronicles: Definitive Edition
+        id: '0100ff500e34a000',
+        client: '966442512984191076',
+        showPlayingOnline: true,
+        showActiveEvent: true,
+    },
     {
         // Xenoblade Chronicles 2
         id: '0100e95004038000',
@@ -719,14 +730,6 @@ export const titles: Title[] = [
     // },
 
     {
-        // Xenoblade Chronicles: Definitive Edition
-        id: '0100ff500e34a000',
-        client: '966442512984191076',
-        showPlayingOnline: true,
-        showActiveEvent: true,
-    },
-
-    {
         // 51 Worldwide Games
         id: '010047700d540000',
         client: '966442617938280526',
@@ -1051,14 +1054,15 @@ export const titles: Title[] = [
         client: '966534341662482462',
         showPlayingOnline: true,
         showActiveEvent: true,
+        locale: "en-GB",
     },
     {
-        // Mario Strikers: Battle League Football - First Kick
-        id: '01008a30182f2000',
-        client: '966534341662482462',
-        largeImageText: 'First Kick',
+        // Mario Strikers: Battle League
+        id: '010019401051c000',
+        client: '990698374602838078',
         showPlayingOnline: true,
         showActiveEvent: true,
+        locale: "en-US",
     },
 
     {
@@ -1076,11 +1080,11 @@ export const titles: Title[] = [
         showPlayingOnline: true,
         showActiveEvent: true,
     },
-
+    
     {
-        // Live A Live
+        // LIVE A LIVE
         id: '0100cf801776c000',
-        client: '966534559929860167',
+        client: '990706032877654116',
         showPlayingOnline: true,
         showActiveEvent: true,
     },

@@ -9,7 +9,13 @@ export function getDiscordPresence(
     state: PresenceState, game: Game, context?: DiscordPresenceContext
 ): DiscordPresence {
     const titleid = getTitleIdFromEcUrl(game.shopUri);
-    const title = titles.find(t => t.id === titleid) || defaultTitle;
+    const titleList = titles.filter(t => t.id === titleid); 
+
+    const TEMP_COUNTRY_CONFIG = 'en-US'; //Intl.DateTimeFormat().resolvedOptions().locale
+
+    let t; if (titleList.length >= 2) t = titleList.find(item => item.locale === TEMP_COUNTRY_CONFIG);
+    else t = titleList[0];
+    const title = t || defaultTitle;
 
     const text: (string | undefined)[] = [];
 
@@ -30,11 +36,13 @@ export function getDiscordPresence(
     // This doesn't normally have a noticeable effect, but the Active Now panel does show details/state differently
     if (!text.length) text.push(undefined);
 
+    let play_time_text;
     if ((title.showPlayTime ?? true) && game.totalPlayTime >= 60) {
-        const play_time_text = getPlayTimeText(context?.show_play_time ??
-            DiscordPresencePlayTime.DETAILED_PLAY_TIME_SINCE, game);
-        if (play_time_text) text.push(play_time_text);
+        play_time_text = getPlayTimeText(DiscordPresencePlayTime.DETAILED_PLAY_TIME_SINCE, game);
+    } else if ((title.showPlayTime ?? true)) {
+        play_time_text = getPlayTimeText(DiscordPresencePlayTime.NINTENDO, game);
     }
+    if (play_time_text) text.push(play_time_text);
 
     const nintendo_eshop_redirect_url = titleid ?
         'https://fancy.org.uk/api/nxapi/title/' + titleid + '/redirect?source=nxapi-' + version + '-discord' : null;
@@ -82,7 +90,7 @@ function getPlayTimeText(type: DiscordPresencePlayTime, game: Game) {
 
     if (type === DiscordPresencePlayTime.HIDDEN || game.totalPlayTime < 0) return null;
 
-    const since = game.firstPlayedAt ? new Date(game.firstPlayedAt * 1000).toLocaleDateString('en-GB') : 'now';
+    const since = game.firstPlayedAt ? new Date(game.firstPlayedAt * 1000).toLocaleDateString() : 'now';
 
     switch (type) {
         case DiscordPresencePlayTime.APPROXIMATE_PLAY_TIME:
@@ -193,6 +201,8 @@ export interface Title {
      * @default false
      */
     titleName?: string | boolean;
+    //comment
+    locale?: string;
     /**
      * By default the title's icon from znc will be used. (No icons need to be uploaded to Discord.)
      */
