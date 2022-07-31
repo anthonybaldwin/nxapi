@@ -1,7 +1,7 @@
 import DiscordRPC from 'discord-rpc';
 import { ActiveEvent, CurrentUser, Friend, Game, PresenceState } from '../api/coral-types.js';
 import { defaultTitle, titles } from './titles.js';
-import { product } from '../util/product.js';
+import { product, version } from '../util/product.js';
 import { getTitleIdFromEcUrl, hrduration } from '../util/misc.js';
 import { ZncDiscordPresence, ZncProxyDiscordPresence } from '../common/presence.js';
 
@@ -44,6 +44,9 @@ export function getDiscordPresence(
     }
     if (play_time_text) text.push(play_time_text);
 
+    const nintendo_eshop_redirect_url = titleid ?
+        'https://fancy.org.uk/api/nxapi/title/' + titleid + '/redirect?source=nxapi-' + version + '-discord' : null;
+
     const activity: DiscordRPC.Presence = {
         details: text[0],
         state: text[1],
@@ -55,7 +58,7 @@ export function getDiscordPresence(
         buttons: game.shopUri ? [
             {
                 label: 'Nintendo eShop',
-                url: game.shopUri,
+                url: nintendo_eshop_redirect_url ?? game.shopUri,
             },
         ] : [],
     };

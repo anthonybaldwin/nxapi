@@ -16,6 +16,9 @@ export default class ZncProxyApi implements CoralApi {
     /** @internal */
     _renewToken: Promise<void> | null = null;
 
+    readonly znca_version = '';
+    readonly znca_useragent = '';
+
     constructor(
         private url: string,
         // ZncApi uses the NSO token (valid for a few hours)
@@ -97,8 +100,9 @@ export default class ZncProxyApi implements CoralApi {
         return {status: CoralStatus.OK as const, result: response.user, correlationId: ''};
     }
 
-    async getUserByFriendCode(friend_code: string, hash?: string): Promise<CoralSuccessResponse<FriendCodeUser>> {
-        throw new Error('Not supported in ZncProxyApi');
+    async getUserByFriendCode(friend_code: string, hash?: string) {
+        const response = await this.fetch<{user: FriendCodeUser}>('/friendcode/' + friend_code);
+        return {status: CoralStatus.OK as const, result: response.user, correlationId: ''};
     }
 
     async sendFriendRequest(nsa_id: string): Promise<CoralSuccessResponse<{}>> {
@@ -110,8 +114,9 @@ export default class ZncProxyApi implements CoralApi {
         return {status: CoralStatus.OK as const, result: response.user, correlationId: ''};
     }
 
-    async getFriendCodeUrl(): Promise<CoralSuccessResponse<FriendCodeUrl>> {
-        throw new Error('Not supported in ZncProxyApi');
+    async getFriendCodeUrl() {
+        const response = await this.fetch<{friendcode: FriendCodeUrl}>('/friendcode');
+        return {status: CoralStatus.OK as const, result: response.friendcode, correlationId: ''};
     }
 
     async getCurrentUserPermissions() {
