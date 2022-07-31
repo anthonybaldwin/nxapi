@@ -35,6 +35,7 @@ export default class MoonApi {
                 'X-Moon-App-Id': 'com.nintendo.znma',
                 'X-Moon-Os': 'ANDROID',
                 'X-Moon-Os-Version': '26',
+                'X-Moon-Model': '',
                 'X-Moon-TimeZone': Intl.DateTimeFormat().resolvedOptions().timeZone,
                 'X-Moon-Os-Language': Intl.DateTimeFormat().resolvedOptions().locale,
                 'X-Moon-App-Language': Intl.DateTimeFormat().resolvedOptions().locale,
