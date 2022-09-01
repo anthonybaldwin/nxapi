@@ -33,12 +33,8 @@ export default class NooklinkApi {
                 'Cookie': '_gtoken=' + encodeURIComponent(this.gtoken),
                 'dnt': '1',
                 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-<<<<<<< HEAD
                 'Accept-Language': Intl.DateTimeFormat().resolvedOptions().locale + ';q=0.8',
                 'X-Requested-With': 'com.nintendo.znca',
-=======
-                'Accept-Language': 'en-GB,en-US;q=0.8',
->>>>>>> 120f45d561da13c34bdfd376241172848fed3ad8
                 'Origin': 'https://web.sd.lp1.acbaa.srv.nintendo.net',
                 'Content-Type': 'application/json',
                 'X-Blanco-Version': this.client_version,
@@ -162,12 +158,8 @@ export class NooklinkUserApi {
         public auth_token: string,
         public gtoken: string,
         public useragent: string,
-<<<<<<< HEAD
-        public language = Intl.DateTimeFormat().resolvedOptions().locale
-=======
-        public language = 'en-GB',
+        public language = Intl.DateTimeFormat().resolvedOptions().locale,
         readonly client_version = BLANCO_VERSION,
->>>>>>> 120f45d561da13c34bdfd376241172848fed3ad8
     ) {}
 
     async fetch<T = unknown>(url: string, method = 'GET', body?: string | FormData, headers?: object) {

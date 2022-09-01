@@ -84,15 +84,10 @@ export default function Friend(props: FriendProps) {
                         Coral user ID: <Text style={styles.friendCoralIdValue}>{friend.id}</Text>
                     </> : 'Never used Nintendo Switch Online app'}</Text>
 
-<<<<<<< HEAD
                     <Text style={[styles.friendCreatedAt, theme.text]}>Friends since {new Date(friend.friendCreatedAt * 1000).toLocaleString()}</Text>
                     {friend.presence.updatedAt ? <Text style={[styles.presenceUpdatedAt, theme.text]}>Presence updated at {new Date(friend.presence.updatedAt * 1000).toLocaleString()}</Text> : null}
-=======
-                    <Text style={[styles.friendCreatedAt, theme.text]}>Friends since {new Date(friend.friendCreatedAt * 1000).toLocaleString('en-GB')}</Text>
-                    {friend.presence.updatedAt ? <Text style={[styles.presenceUpdatedAt, theme.text]}>Presence updated at {new Date(friend.presence.updatedAt * 1000).toLocaleString('en-GB')}</Text> : null}
                     {!(friend.presence.state === PresenceState.ONLINE || friend.presence.state === PresenceState.PLAYING) &&
-                        friend.presence.logoutAt ? <Text style={[styles.presenceUpdatedAt, theme.text]}>Last online at {new Date(friend.presence.logoutAt * 1000).toLocaleString('en-GB')}</Text> : null}
->>>>>>> 120f45d561da13c34bdfd376241172848fed3ad8
+                        friend.presence.logoutAt ? <Text style={[styles.presenceUpdatedAt, theme.text]}>Last online at {new Date(friend.presence.logoutAt * 1000).toLocaleString()}</Text> : null}
                     <Text style={[styles.canSeeUserPresence, theme.text]}>This user {can_see_user_presence ? 'can' : 'can not'} see your presence.</Text>
                 </View>
 
@@ -136,11 +131,7 @@ function FriendPresence(props: {
 
     return <View>
         <Text style={[styles.presenceText, styles.presenceTextOffline, theme.text]}>Offline</Text>
-<<<<<<< HEAD
-        {logout ? <Text style={[styles.presenceText, styles.presenceTextOffline, theme.text]}>Last seen {logout.toLocaleString()}</Text> : null}
-=======
         {logout ? <Text style={[styles.presenceText, styles.presenceTextOffline, theme.text]}>Last seen {since_logout}</Text> : null}
->>>>>>> 120f45d561da13c34bdfd376241172848fed3ad8
     </View>;
 }
 
