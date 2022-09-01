@@ -1,12 +1,13 @@
 import fetch, { Response } from 'node-fetch';
 import { v4 as uuidgen } from 'uuid';
 import createDebug from 'debug';
-import { f, FlapgIid, FResult } from './f.js';
+import { f, FResult } from './f.js';
 import { AccountLogin, AccountToken, Announcements, CurrentUser, CurrentUserPermissions, Event, Friends, GetActiveEventResult, PresencePermissions, User, WebServices, WebServiceToken, CoralErrorResponse, CoralResponse, CoralStatus, CoralSuccessResponse, FriendCodeUser, FriendCodeUrl, AccountTokenParameter, AccountLoginParameter } from './coral-types.js';
 import { getNintendoAccountToken, getNintendoAccountUser, NintendoAccountToken, NintendoAccountUser } from './na.js';
 import { ErrorResponse } from './util.js';
 import { JwtPayload } from '../util/jwt.js';
 import { getAdditionalUserAgents } from '../util/useragent.js';
+import { timeoutSignal } from '../util/misc.js';
 
 const debug = createDebug('nxapi:api:coral');
 
@@ -42,8 +43,9 @@ export default class CoralApi {
             await this._renewToken;
         }
 
+        const [signal, cancel] = timeoutSignal();
         const response = await fetch(ZNC_URL + url, {
-            method: method,
+            method,
             headers: Object.assign({
                 'X-Platform': ZNCA_PLATFORM,
                 'X-ProductVersion': this.znca_version,
@@ -51,10 +53,15 @@ export default class CoralApi {
                 'Content-Type': 'application/json; charset=utf-8',
                 'User-Agent': this.znca_useragent,
             }, headers),
-            body: body,
-        });
+            body,
+            signal,
+        }).finally(cancel);
 
         debug('fetch %s %s, response %s', method, url, response.status);
+
+        if (response.status !== 200) {
+            throw new ErrorResponse('[znc] Non-200 status code', response, await response.text());
+        }
 
         const data = await response.json() as CoralResponse<T>;
 
@@ -171,17 +178,14 @@ export default class CoralApi {
     }
 
     async getWebServiceToken(id: string) {
-        const uuid = uuidgen();
-        const timestamp = '' + Math.floor(Date.now() / 1000);
-
-        const data = await f(this.token, timestamp, uuid, FlapgIid.APP, this.useragent ?? getAdditionalUserAgents());
+        const data = await f(this.token, '2', this.useragent ?? getAdditionalUserAgents());
 
         const req = {
             id,
-            registrationToken: this.token,
+            registrationToken: '',
             f: data.f,
-            requestId: uuid,
-            timestamp,
+            requestId: data.request_id,
+            timestamp: data.timestamp,
         };
 
         return this.call<WebServiceToken>('/v2/Game/GetWebServiceToken', req);
@@ -191,27 +195,19 @@ export default class CoralApi {
         // Nintendo Account token
         const nintendoAccountToken = await getNintendoAccountToken(token, ZNCA_CLIENT_ID);
 
-        const uuid = uuidgen();
-        const timestamp = '' + Math.floor(Date.now() / 1000);
-
-        const fdata = await f(
-            nintendoAccountToken.id_token, timestamp, uuid,
-            FlapgIid.NSO, this.useragent ?? getAdditionalUserAgents()
-        );
+        const fdata = await f(nintendoAccountToken.id_token, '1', this.useragent ?? getAdditionalUserAgents());
 
         const req: AccountTokenParameter = {
             naBirthday: user.birthday,
-            timestamp,
+            timestamp: fdata.timestamp,
             f: fdata.f,
-            requestId: uuid,
+            requestId: fdata.request_id,
             naIdToken: nintendoAccountToken.id_token,
         };
 
         const data = await this.call<AccountToken>('/v3/Account/GetToken', req, false);
 
         return {
-            uuid,
-            timestamp,
             nintendoAccountToken,
             // user,
             f: fdata,
@@ -254,13 +250,7 @@ export default class CoralApi {
         // Nintendo Account user data
         const user = await getNintendoAccountUser(nintendoAccountToken);
 
-        const uuid = uuidgen();
-        const timestamp = '' + Math.floor(Date.now() / 1000);
-
-        const fdata = await f(
-            nintendoAccountToken.id_token, timestamp, uuid,
-            FlapgIid.NSO, useragent
-        );
+        const fdata = await f(nintendoAccountToken.id_token, '1', useragent);
 
         debug('Getting Nintendo Switch Online app token');
 
@@ -269,11 +259,12 @@ export default class CoralApi {
             naBirthday: user.birthday,
             naCountry: user.country,
             language: user.language,
-            timestamp,
-            requestId: uuid,
+            timestamp: fdata.timestamp,
+            requestId: fdata.request_id,
             f: fdata.f,
         };
 
+        const [signal, cancel] = timeoutSignal();
         const response = await fetch(ZNC_URL + '/v3/Account/Login', {
             method: 'POST',
             headers: {
@@ -285,9 +276,15 @@ export default class CoralApi {
             body: JSON.stringify({
                 parameter,
             }),
-        });
+            signal,
+        }).finally(cancel);
 
         debug('fetch %s %s, response %s', 'POST', '/v3/Account/Login', response.status);
+
+        if (response.status !== 200) {
+            throw new ErrorResponse('[znc] Non-200 status code', response, await response.text());
+        }
+
         const data = await response.json() as CoralResponse<AccountLogin>;
 
         if ('errorMessage' in data) {
@@ -300,8 +297,6 @@ export default class CoralApi {
         debug('Got Nintendo Switch Online app token', data);
 
         return {
-            uuid,
-            timestamp,
             nintendoAccountToken,
             user,
             f: fdata,
@@ -314,8 +309,6 @@ export default class CoralApi {
 }
 
 export interface CoralAuthData {
-    uuid: string;
-    timestamp: string;
     nintendoAccountToken: NintendoAccountToken;
     user: NintendoAccountUser;
     f: FResult;
@@ -326,7 +319,7 @@ export interface CoralAuthData {
 }
 
 export type PartialCoralAuthData =
-    Pick<CoralAuthData, 'uuid' | 'timestamp' | 'nintendoAccountToken' | 'f' | 'nsoAccount' | 'credential'>;
+    Pick<CoralAuthData, 'nintendoAccountToken' | 'f' | 'nsoAccount' | 'credential'>;
 
 export interface CoralJwtPayload extends JwtPayload {
     isChildRestricted: boolean;

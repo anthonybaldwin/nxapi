@@ -1,7 +1,7 @@
 import createDebug from 'debug';
 import persist from 'node-persist';
-import { getToken } from './coral.js';
-import NooklinkApi, { NooklinkUserApi } from '../../api/nooklink.js';
+import { getToken, Login } from './coral.js';
+import NooklinkApi, { NooklinkAuthData, NooklinkUserApi, NooklinkUserAuthData } from '../../api/nooklink.js';
 import { AuthToken, Users } from '../../api/nooklink-types.js';
 import { WebServiceToken } from '../../api/coral-types.js';
 import { checkUseLimit, SHOULD_LIMIT_USE } from './util.js';
@@ -10,16 +10,7 @@ import { NintendoAccountSessionTokenJwtPayload } from '../../api/na.js';
 
 const debug = createDebug('nxapi:auth:nooklink');
 
-export interface SavedToken {
-    webserviceToken: WebServiceToken;
-    url: string;
-    cookies: string;
-    body: string;
-
-    gtoken: string;
-    expires_at: number;
-    useragent: string;
-}
+export interface SavedToken extends NooklinkAuthData {}
 
 export async function getWebServiceToken(
     storage: persist.LocalStorage, token: string, proxy_url?: string,
@@ -47,12 +38,19 @@ export async function getWebServiceToken(
 
         const {nso, data} = await getToken(storage, token, proxy_url);
 
+        if (data[Login]) {
+            const announcements = await nso.getAnnouncements();
+            const friends = await nso.getFriendList();
+            const webservices = await nso.getWebServices();
+            const activeevent = await nso.getActiveEvent();
+        }
+
         const existingToken: SavedToken = await NooklinkApi.loginWithCoral(nso, data.user);
 
         await storage.setItem('NookToken.' + token, existingToken);
 
         return {
-            nooklink: new NooklinkApi(existingToken.gtoken, existingToken.useragent),
+            nooklink: NooklinkApi.createWithSavedToken(existingToken),
             data: existingToken,
         };
     }
@@ -60,16 +58,12 @@ export async function getWebServiceToken(
     debug('Using existing web service token');
 
     return {
-        nooklink: new NooklinkApi(existingToken.gtoken, existingToken.useragent),
+        nooklink: NooklinkApi.createWithSavedToken(existingToken),
         data: existingToken,
     };
 }
 
-export interface SavedUserToken {
-    token: AuthToken;
-    user: string;
-    webserviceToken: SavedToken;
-}
+export interface SavedUserToken extends NooklinkUserAuthData {}
 
 type PromiseValue<T> = T extends PromiseLike<infer R> ? R : never;
 
@@ -123,29 +117,18 @@ export async function getUserToken(
         console.warn('Authenticating to NookLink as user %s', user);
         debug('Authenticating to NookLink as user %s', user);
 
-        const token = await nooklink.getAuthToken(user);
-
-        const existingToken: SavedUserToken = {
-            token,
-            user,
-            webserviceToken,
-        };
+        const {nooklinkuser, data} = await nooklink.createUserClient(user);
+        const existingToken: SavedUserToken = data;
 
         await storage.setItem('NookAuthToken.' + nintendoAccountToken + '.' + user, existingToken);
 
-        return {
-            nooklinkuser: new NooklinkUserApi(user, token.token, nooklink.gtoken, nooklink.useragent),
-            data: existingToken,
-        };
+        return {nooklinkuser, data: existingToken};
     }
 
     debug('Using existing NookLink auth token');
 
     return {
-        nooklinkuser: new NooklinkUserApi(
-            user, existingToken.token.token,
-            existingToken.webserviceToken.gtoken, existingToken.webserviceToken.useragent
-        ),
+        nooklinkuser: NooklinkUserApi.createWithSavedToken(existingToken),
         data: existingToken,
     };
 }

@@ -14,12 +14,13 @@ export const NOOKLINK_WEBSERVICE_URL = 'https://web.sd.lp1.acbaa.srv.nintendo.ne
 export const NOOKLINK_WEBSERVICE_USERAGENT = 'Mozilla/5.0 (Linux; Android 8.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/58.0.3029.125 Mobile Safari/537.36';
 
 const NOOKLINK_URL = NOOKLINK_WEBSERVICE_URL + '/api';
-const BLANCO_VERSION = '2.1.0';
+const BLANCO_VERSION = '2.1.1';
 
 export default class NooklinkApi {
-    constructor(
+    protected constructor(
         public gtoken: string,
-        public useragent: string
+        public useragent: string,
+        readonly client_version = BLANCO_VERSION,
     ) {}
 
     async fetch<T = unknown>(url: string, method = 'GET', body?: string | FormData, headers?: object) {
@@ -32,11 +33,15 @@ export default class NooklinkApi {
                 'Cookie': '_gtoken=' + encodeURIComponent(this.gtoken),
                 'dnt': '1',
                 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+<<<<<<< HEAD
                 'Accept-Language': Intl.DateTimeFormat().resolvedOptions().locale + ';q=0.8',
                 'X-Requested-With': 'com.nintendo.znca',
+=======
+                'Accept-Language': 'en-GB,en-US;q=0.8',
+>>>>>>> 120f45d561da13c34bdfd376241172848fed3ad8
                 'Origin': 'https://web.sd.lp1.acbaa.srv.nintendo.net',
                 'Content-Type': 'application/json',
-                'X-Blanco-Version': BLANCO_VERSION,
+                'X-Blanco-Version': this.client_version,
             }, headers),
             body,
             signal,
@@ -45,7 +50,7 @@ export default class NooklinkApi {
         debug('fetch %s %s, response %s', method, url, response.status);
 
         if (response.status !== 200 && response.status !== 201) {
-            throw new ErrorResponse('[nooklink] Unknown error', response, await response.text());
+            throw new ErrorResponse('[nooklink] Non-200/201 status code', response, await response.text());
         }
 
         const data = await response.json() as T | WebServiceError;
@@ -68,21 +73,16 @@ export default class NooklinkApi {
     }
 
     async createUserClient(user_id: string) {
-        const token = await this.getAuthToken(user_id);
-
-        return {
-            nooklinkuser: new NooklinkUserApi(user_id, token.token, this.gtoken, this.useragent),
-            token,
-        };
+        return NooklinkUserApi._createWithNooklinkApi(this, user_id);
     }
 
     static async createWithCoral(nso: CoralApi, user: NintendoAccountUser) {
         const data = await this.loginWithCoral(nso, user);
+        return {nooklink: this.createWithSavedToken(data), data};
+    }
 
-        return {
-            nooklink: new this(data.gtoken, data.useragent),
-            data,
-        };
+    static createWithSavedToken(data: NooklinkAuthData) {
+        return new this(data.gtoken, data.useragent);
     }
 
     static async loginWithCoral(nso: CoralApi, user: NintendoAccountUser) {
@@ -91,7 +91,12 @@ export default class NooklinkApi {
         return this.loginWithWebServiceToken(webserviceToken.result, user);
     }
 
-    static async loginWithWebServiceToken(webserviceToken: WebServiceToken, user: NintendoAccountUser) {
+    static async loginWithWebServiceToken(
+        webserviceToken: WebServiceToken, user: NintendoAccountUser
+    ): Promise<NooklinkAuthData> {
+        const { default: { coral_gws_nooklink: config } } = await import('../common/remote-config.js');
+        if (!config) throw new Error('Remote configuration prevents NookLink authentication');
+
         const url = new URL(NOOKLINK_WEBSERVICE_URL);
         url.search = new URLSearchParams({
             lang: user.language,
@@ -146,17 +151,23 @@ export default class NooklinkApi {
             gtoken,
             expires_at,
             useragent: NOOKLINK_WEBSERVICE_USERAGENT,
+            version: config.blanco_version,
         };
     }
 }
 
 export class NooklinkUserApi {
-    constructor(
+    protected constructor(
         public user_id: string,
         public auth_token: string,
         public gtoken: string,
         public useragent: string,
+<<<<<<< HEAD
         public language = Intl.DateTimeFormat().resolvedOptions().locale
+=======
+        public language = 'en-GB',
+        readonly client_version = BLANCO_VERSION,
+>>>>>>> 120f45d561da13c34bdfd376241172848fed3ad8
     ) {}
 
     async fetch<T = unknown>(url: string, method = 'GET', body?: string | FormData, headers?: object) {
@@ -174,7 +185,7 @@ export class NooklinkUserApi {
                 'Origin': 'https://web.sd.lp1.acbaa.srv.nintendo.net',
                 'Content-Type': 'application/json',
                 'Authorization': 'Bearer ' + this.auth_token,
-                'X-Blanco-Version': BLANCO_VERSION,
+                'X-Blanco-Version': this.client_version,
             }, headers),
             body,
             signal,
@@ -183,7 +194,7 @@ export class NooklinkUserApi {
         debug('fetch %s %s, response %s', method, url, response.status);
 
         if (response.status !== 200 && response.status !== 201) {
-            throw new ErrorResponse('[nooklink] Unknown error', response, await response.text());
+            throw new ErrorResponse('[nooklink] Non-200/201 status code', response, await response.text());
         }
 
         const data = await response.json() as T | WebServiceError;
@@ -238,6 +249,73 @@ export class NooklinkUserApi {
     async reaction(reaction: Reaction) {
         return this.postMessage(reaction.label, MessageType.EMOTICON);
     }
+
+    /** @internal */
+    static async _loginWithNooklinkApi(client: NooklinkApi, user_id: string): Promise<NooklinkUserAuthData> {
+        const token = await client.getAuthToken(user_id);
+
+        return {
+            gtoken: client.gtoken,
+            useragent: client.useragent,
+            version: client.client_version,
+
+            user_id,
+            token,
+            language: 'en-GB',
+        };
+    }
+
+    /** @internal */
+    static async _createWithNooklinkApi(client: NooklinkApi, user_id: string) {
+        const data = await this._loginWithNooklinkApi(client, user_id);
+        return {nooklinkuser: this.createWithSavedToken(data), data};
+    }
+
+    static createWithSavedToken(data: NooklinkUserAuthData) {
+        return new NooklinkUserApi(
+            data.user_id, data.token.token,
+            data.gtoken, data.useragent, data.language, data.version
+        );
+    }
+
+    static createWithCliTokenData(data: NooklinkUserCliTokenData) {
+        return new NooklinkUserApi(
+            data.user_id, data.auth_token,
+            data.gtoken, NOOKLINK_WEBSERVICE_USERAGENT, data.language, data.version
+        );
+    }
+}
+
+export interface NooklinkAuthData {
+    webserviceToken: WebServiceToken;
+    url: string;
+    cookies: string;
+    body: string;
+
+    gtoken: string;
+    expires_at: number;
+    useragent: string;
+    version: string;
+}
+
+export interface NooklinkUserAuthData {
+    gtoken: string;
+    useragent: string;
+    version: string;
+
+    user_id: string;
+    token: AuthToken;
+    language: string;
+}
+
+export interface NooklinkUserCliTokenData {
+    gtoken: string;
+    version: string;
+
+    auth_token: string;
+    expires_at: number;
+    user_id: string;
+    language: string;
 }
 
 function formatDateTime(date: Date) {

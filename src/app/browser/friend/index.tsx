@@ -8,7 +8,7 @@ import { getTitleIdFromEcUrl, hrduration } from '../../../util/misc.js';
 import { Button } from '../components/index.js';
 import { DEFAULT_ACCENT_COLOUR, TEXT_COLOUR_ACTIVE, TEXT_COLOUR_DARK, TEXT_COLOUR_LIGHT } from '../constants.js';
 import ipc, { events } from '../ipc.js';
-import { RequestState, Root, useAccentColour, useAsync, useColourScheme, useDiscordPresenceSource, useEventListener } from '../util.js';
+import { RequestState, Root, useAccentColour, useAsync, useColourScheme, useDiscordPresenceSource, useEventListener, useTimeSince } from '../util.js';
 
 export interface FriendProps {
     user: string;
@@ -24,9 +24,9 @@ export default function Friend(props: FriendProps) {
 
     const [discord_presence_source, discord_presence_source_state] = useDiscordPresenceSource();
 
-    const [token] = useAsync(useCallback(() => ipc.getNintendoAccountNsoToken(props.user), [ipc, props.user]));
+    const [token] = useAsync(useCallback(() => ipc.getNintendoAccountCoralToken(props.user), [ipc, props.user]));
     const [user] = useAsync(useCallback(() => token ?
-        ipc.getSavedNsoToken(token) : Promise.resolve(null), [ipc, token]));
+        ipc.getSavedCoralToken(token) : Promise.resolve(null), [ipc, token]));
     const [friends, , friends_state, forceRefreshFriends] = useAsync(useCallback(() => token ?
         ipc.getNsoFriends(token) : Promise.resolve(null), [ipc, token]));
     const friend = friends?.find(f => f.nsaId === props.friend);
@@ -84,8 +84,15 @@ export default function Friend(props: FriendProps) {
                         Coral user ID: <Text style={styles.friendCoralIdValue}>{friend.id}</Text>
                     </> : 'Never used Nintendo Switch Online app'}</Text>
 
+<<<<<<< HEAD
                     <Text style={[styles.friendCreatedAt, theme.text]}>Friends since {new Date(friend.friendCreatedAt * 1000).toLocaleString()}</Text>
                     {friend.presence.updatedAt ? <Text style={[styles.presenceUpdatedAt, theme.text]}>Presence updated at {new Date(friend.presence.updatedAt * 1000).toLocaleString()}</Text> : null}
+=======
+                    <Text style={[styles.friendCreatedAt, theme.text]}>Friends since {new Date(friend.friendCreatedAt * 1000).toLocaleString('en-GB')}</Text>
+                    {friend.presence.updatedAt ? <Text style={[styles.presenceUpdatedAt, theme.text]}>Presence updated at {new Date(friend.presence.updatedAt * 1000).toLocaleString('en-GB')}</Text> : null}
+                    {!(friend.presence.state === PresenceState.ONLINE || friend.presence.state === PresenceState.PLAYING) &&
+                        friend.presence.logoutAt ? <Text style={[styles.presenceUpdatedAt, theme.text]}>Last online at {new Date(friend.presence.logoutAt * 1000).toLocaleString('en-GB')}</Text> : null}
+>>>>>>> 120f45d561da13c34bdfd376241172848fed3ad8
                     <Text style={[styles.canSeeUserPresence, theme.text]}>This user {can_see_user_presence ? 'can' : 'can not'} see your presence.</Text>
                 </View>
 
@@ -120,6 +127,7 @@ function FriendPresence(props: {
     const theme = useColourScheme() === 'light' ? light : dark;
 
     const logout = props.presence.logoutAt ? new Date(props.presence.logoutAt * 1000) : null;
+    const since_logout = useTimeSince(logout ?? new Date(0));
     const game = 'name' in props.presence.game ? props.presence.game : null;
 
     if (props.presence.state === PresenceState.ONLINE || props.presence.state === PresenceState.PLAYING) {
@@ -128,7 +136,11 @@ function FriendPresence(props: {
 
     return <View>
         <Text style={[styles.presenceText, styles.presenceTextOffline, theme.text]}>Offline</Text>
+<<<<<<< HEAD
         {logout ? <Text style={[styles.presenceText, styles.presenceTextOffline, theme.text]}>Last seen {logout.toLocaleString()}</Text> : null}
+=======
+        {logout ? <Text style={[styles.presenceText, styles.presenceTextOffline, theme.text]}>Last seen {since_logout}</Text> : null}
+>>>>>>> 120f45d561da13c34bdfd376241172848fed3ad8
     </View>;
 }
 

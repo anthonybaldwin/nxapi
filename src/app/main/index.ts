@@ -17,6 +17,7 @@ import Users, { CoralUser } from '../../common/users.js';
 import { setupIpc } from './ipc.js';
 import { dev, dir } from '../../util/product.js';
 import { addUserAgent } from '../../util/useragent.js';
+import { askUserForUri } from './util.js';
 
 const debug = createDebug('app:main');
 
@@ -119,9 +120,18 @@ export async function init() {
         if (BrowserWindow.getAllWindows().length === 0) appinstance.showMainWindow();
     });
 
+    app.on('browser-window-created', () => {
+        // Show the dock icon when any windows are open
+        app.dock?.show();
+    });
+
     app.on('window-all-closed', () => {
         // Listen to the window-all-closed event to prevent Electron quitting the app
         // https://www.electronjs.org/docs/latest/api/app#event-window-all-closed
+
+        // Hide the dock icon when no windows are open
+        // https://github.com/samuelthomas2774/nxapi/issues/18
+        app.dock?.hide();
     });
 
     debug('App started');
@@ -135,7 +145,38 @@ function tryHandleUrl(app: App, url: string) {
         return true;
     }
 
+    if (url.match(/^com\.nintendo\.znca:\/\/(znca\/)?friendcode\/(\d{4}-\d{4}-\d{4})\/([A-Za-z0-9]{10})($|\?|\#)/i)) {
+        handleOpenFriendCodeUri(app.store, url);
+        return true;
+    }
+
     return false;
+}
+
+export async function handleOpenFriendCodeUri(store: Store, uri: string) {
+    const match = uri.match(/^com\.nintendo\.znca:\/\/(znca\/)friendcode\/(\d{4}-\d{4}-\d{4})\/([A-Za-z0-9]{10})($|\?|\#)/i);
+    if (!match) return;
+
+    const friendcode = match[2];
+    const hash = match[3];
+
+    const selected_user = await askUserForUri(store, uri, 'Select a user to add friends');
+    if (!selected_user) return;
+
+    createWindow(WindowType.ADD_FRIEND, {
+        user: selected_user[1].user.id,
+        friendcode,
+    }, {
+        // show: false,
+        maximizable: false,
+        minimizable: false,
+        width: 560,
+        height: 300,
+        minWidth: 450,
+        maxWidth: 700,
+        minHeight: 300,
+        maxHeight: 300,
+    });
 }
 
 class Updater {
